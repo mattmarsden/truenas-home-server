@@ -64,8 +64,15 @@ services:
           create_host_path: False
           propagation: rprivate
         read_only: False
-        source: /mnt/tank/media/downloads
+        source: /mnt/tank/media/downloads/complete
         target: /downloads
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/tank/media/downloads/incomplete
+        target: /incomplete
         type: bind
     healthcheck:
       test: ["CMD", "curl", "-fs", "http://localhost:8080"]
