@@ -28,33 +28,19 @@ services:
           create_host_path: False
           propagation: rprivate
         read_only: False
-        source: /mnt/tank/media/downloads/complete
-        target: /downloads
-        type: bind
-      - bind:
-          create_host_path: False
-          propagation: rprivate
-        read_only: False
-        source: /mnt/tank/media/scanned
-        target: /scanned
-        type: bind
-      - bind:
-          create_host_path: False
-          propagation: rprivate
-        read_only: False
-        source: /mnt/tank/media/quarantine
-        target: /infected
+        source: /mnt/tank/media
+        target: /media
         type: bind
     command: >
       sh -c "
         apk add inotify-tools &&
         freshclam &&
-        echo 'Monitoring /downloads for new files...' &&
-        inotifywait -m -r -e close_write,create,move --format '%w%f' /downloads |
+        echo 'Monitoring /media/downloads/complete for new files...' &&
+        inotifywait -m -r -e close_write,create,move --format '%w%f' /media/downloads/complete |
         while read file; do
-          echo "Scanning: $file";
-          if clamscan --move=/infected $file | grep -q 'Infected files: 0'; then
-            cp $file /scanned/;
+          echo 'Scanning:' \"$file\" &&
+          if clamscan --move=/media/quarantine/ \"$file\" | grep -q 'Infected files: 0'; then
+            mv \"$file\" /media/scanned/;
           fi;
         done
       "
