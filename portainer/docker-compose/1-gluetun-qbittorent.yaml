@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps-pool/apps/gluetun/data
+        target: /gluetun
+        type: bind
+    environment:
+      PGID: '568'
+      PUID: '568'
+      TZ: 'Australia/Melbourne'
+      VPN_SERVICE_PROVIDER: 'nordvpn'
+      VPN_TYPE: 'openvpn'
+      OPENVPN_USER: '<your_nordvpn_username>'
+      OPENVPN_PASSWORD: '<your_nordvpn_password>'
+      SERVER_COUNTRIES: 'Australia'
+      FIREWALL_OUTBOUND_SUBNETS: '192.168.0.0/16'  # Allows LAN access to Web UI
+      VPN_INPUT_PORTS: '8080,6881'   # qBittorrent ports
+      HTTPPROXY: 'off'
+    ports:
+      - 8080:8080    # qBittorrent WebUI
+      - 6881:6881    # TCP BitTorrent
+      - 6881:6881/udp
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "https://ipinfo.io"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      PUID: '568'
+      PGID: '568'
+      TZ: 'Australia/Melbourne'
+      WEBUI_PORT: '8080'
+      QBT_TORRENTING_PORT: '6881'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps-pool/apps/qbittorrent/config
+        target: /config
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/tank/media/downloads
+        target: /downloads
+        type: bind
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
