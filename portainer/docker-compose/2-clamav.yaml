@@ -35,11 +35,11 @@ services:
       sh -c "
         apk add inotify-tools &&
         freshclam &&
-        echo 'Monitoring /media/downloads/complete for new files...' &&
-        inotifywait -m -r -e close_write,create,move --format '%w%f' /media/downloads/complete |
+        echo 'Monitoring /media/downloads/complete/ for new files...' &&
+        inotifywait -mrq -e close_write,create,moved_to --format '%w%f' /media/downloads/complete/ |
         while read file; do
           echo 'Scanning:' \"$file\" &&
-          if clamscan --move=/media/quarantine/ \"$file\" | grep -q 'Infected files: 0'; then
+          if clamscan \"$file\" --move=/media/quarantine/ | grep -q 'Infected files: 0'; then
             mv \"$file\" /media/scanned/;
           fi;
         done
