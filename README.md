@@ -20,7 +20,7 @@ All setup config for my TrueNAS SCALE Home Server
             * Guide:
                 * First build the required image from the Dockerfile.
         * FileBot
-            * Docs: 
+            * Docs: https://www.filebot.net/
 
 ### App Config:
 1. Gluetun

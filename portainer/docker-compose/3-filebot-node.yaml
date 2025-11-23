@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  filebot:
+    container_name: filebot-node
+    image: rednoah/filebot:node
+    restart: unless-stopped
+    tty: True
+    environment:
+      PGID: '568'
+      PUID: '568'
+      TZ: 'Australia/Melbourne'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps-pool/apps/filebot/data
+        target: /data
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/tank/media
+        target: /media
+        type: bind
+    ports:
+      - 5452:5452
+volumes:
+  data:
+    name: filebot-application-data

@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  filebot:
+    container_name: filebot-watcher
+    image: rednoah/filebot:watcher
+    restart: unless-stopped
+    tty: True
+    environment:
+      PGID: '568'
+      PUID: '568'
+      TZ: 'Australia/Melbourne'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps-pool/apps/filebot/data
+        target: /data
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/tank/media
+        target: /media
+        type: bind
+    command: /media/downloads/scanned --output /media --action move -non-strict --order Airdate --conflict auto --lang en --def 'music=y' 'unsorted=y' 'clean=y' 'skipExtract=y' 'minLengthMS=0' 'minFileSize=0' 'jellyfin=http://truenas.local:8096:f21977f1699c4a19a2d7be3235154c40' 'seriesFormat={ jellyfin.id }' 'animeFormat=Anime/{ jellyfin.id }' 'movieFormat={ jellyfin.id }' 'musicFormat={ jellyfin.id }' 'excludeList=.excludes' --log all --log-file '/data/filebot/watcher/filebot.log'
+volumes:
+  data:
+    name: filebot-application-data
