@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 
+# Start freshclam in daemon mode
+echo "Starting freshclam update daemon..."
+freshclam -d &
+
 # Ensure required directories exist
 mkdir -p \
   /media/downloads/complete \
@@ -15,13 +19,12 @@ inotifywait -m /media/downloads/complete/ -e MOVED_TO --exclude '/[.@]' \
     echo "[INOTIFY] FOLDER=$FOLDER OPERATION=$OPERATION FILE=$FILE"
 
     SRC="$FOLDER$FILE"
-    echo "Going to scan: $SRC"
-    echo "First, updating virus database..."
-    freshclam
+    DEST="/media/downloads/scanned/"
+    echo "Scanning: $SRC"
 
     # Scan and move infected files to quarantine
     if clamscan "$SRC" --move=/media/downloads/quarantine/ | grep -q "Infected files: 0"; then
-      echo "No threats found in $SRC. Moving to scanned folder."
-      mv "$SRC" /media/downloads/scanned/
+      echo "No threats found in '$SRC'. Moving to '$DEST' folder."
+      mv "$SRC" "$DEST"
     fi
   done
