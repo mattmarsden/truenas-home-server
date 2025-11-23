@@ -17,7 +17,10 @@ All setup config for my TrueNAS SCALE Home Server
             * Docs: https://www.qbittorrent.org/
         * ClamAV
             * Docs: https://docs.clamav.net/manual/Installing/Docker.html
+            * Guide:
+                * First build the required image from the Dockerfile.
         * FileBot
+            * Docs: 
 
 ### App Config:
 1. Gluetun

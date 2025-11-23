@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   clamav:
-    image: clamav/clamav:stable_base
+    image: clamav/clamav:folderwatcher
     container_name: clamav
     tty: True
     environment:
@@ -10,13 +10,6 @@ services:
       PUID: '568'
       TZ: 'Australia/Melbourne'
     volumes:
-      # - bind:
-      #     create_host_path: False
-      #     propagation: rprivate
-      #   read_only: False
-      #   source: /mnt/apps-pool/apps/clamav/config
-      #   target: /etc/clamav
-      #   type: bind
       - bind:
           create_host_path: False
           propagation: rprivate
@@ -31,19 +24,6 @@ services:
         source: /mnt/tank/media
         target: /media
         type: bind
-    command: >
-      sh -c "
-        apk add inotify-tools &&
-        freshclam &&
-        echo 'Monitoring /media/downloads/complete/ for new files...' &&
-        inotifywait -mrq -e close_write,create,moved_to --format '%w%f' /media/downloads/complete/ |
-        while read file; do
-          echo 'Scanning:' \"$file\" &&
-          if clamscan \"$file\" --move=/media/quarantine/ | grep -q 'Infected files: 0'; then
-            mv \"$file\" /media/scanned/;
-          fi;
-        done
-      "
     healthcheck:
       test: ["CMD-SHELL", "freshclam --version || exit 1"]
       interval: 300s
