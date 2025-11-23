@@ -2,8 +2,8 @@ version: "3.9"
 
 services:
   clamav:
-    image: clamav/clamav:folderwatcher
-    container_name: clamav
+    image: clamav-watcher:latest
+    container_name: clamav-watcher
     tty: True
     environment:
       PGID: '568'

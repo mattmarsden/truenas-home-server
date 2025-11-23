@@ -15,19 +15,22 @@ mkdir -p \
 echo "Monitoring /media/downloads/complete/ for MOVED_TO/CREATE/MODIFY events..."
 
 inotifywait -m /media/downloads/complete/ -e MOVED_TO -e CREATE -e MODIFY --exclude '/[.@]' \
-| while read -r FOLDER OPERATION FILE; do
-    echo "[INOTIFY] FOLDER=$FOLDER OPERATION=$OPERATION FILE=$FILE"
+| while read -r DIR OPERATION FILE; do
+    echo "[INOTIFY] DIRECTORY=$DIR EVENT=$OPERATION FILE=$FILE"
 
-    SRC="$FOLDER$FILE"
+    SRC="$DIR$FILE"
     DEST="/media/downloads/scanned/"
     QUARANTINE_DIR="/media/downloads/quarantine/"
-    echo "Scanning: $SRC"
+    echo "Scanning:"
+
+    SCAN_RESULTS=$(clamscan -r "$SRC" --move="$QUARANTINE_DIR")
+    echo "$SCAN_RESULTS"
 
     # Scan and move infected files to quarantine
-    if clamscan "$SRC" --move="$QUARANTINE_DIR" | grep -q "Infected files: 0"; then
-      echo "No threats found in '$SRC'. Moving to '$DEST' folder."
+    if echo "$SCAN_RESULTS" | grep -q "Infected files: 0"; then
+      echo "No threats found. Moved to '$DEST' folder."
       mv "$SRC" "$DEST"
     else
-      echo "Threat detected. File '$SRC' moved to '$QUARANTINE_DIR'."
+      echo "Threat detected. Moved to '$QUARANTINE_DIR'."
     fi
   done
