@@ -25,6 +25,11 @@ services:
         target: /media
         type: bind
     command: /media/downloads/scanned --output /media --action move -non-strict --order Airdate --conflict auto --lang en --def 'music=y' 'unsorted=y' 'clean=y' 'skipExtract=y' 'minLengthMS=0' 'minFileSize=0' 'jellyfin=http://truenas.local:8096:f21977f1699c4a19a2d7be3235154c40' 'seriesFormat={ jellyfin.id }' 'animeFormat=Anime/{ jellyfin.id }' 'movieFormat={ jellyfin.id }' 'musicFormat={ jellyfin.id }' 'excludeList=.excludes' --log all --log-file '/data/filebot/watcher/filebot.log'
+    healthcheck:
+      test: ["CMD", "filebot", "-version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
 volumes:
   data:
     name: filebot-application-data

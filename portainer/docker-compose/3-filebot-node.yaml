@@ -26,6 +26,11 @@ services:
         type: bind
     ports:
       - 5452:5452
+    healthcheck:
+      test: ["CMD", "filebot", "-version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
 volumes:
   data:
     name: filebot-application-data
