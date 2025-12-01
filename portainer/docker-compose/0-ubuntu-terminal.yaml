@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  clamav:
+    image: ubuntu:latest
+    container_name: ubuntu
+    tty: True
+    environment:
+      PGID: '568'
+      PUID: '568'
+      TZ: 'Australia/Melbourne'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/tank/media
+        target: /media
+        type: bind
+    command: >
+      bash -c "
+      apt update &&
+      apt install -y mkvtoolnix &&
+      exec sleep infinity
+      "
+    healthcheck:
+      test: ["CMD", "exit", "0"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
