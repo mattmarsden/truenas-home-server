@@ -28,8 +28,9 @@ inotifywait -m /media/downloads/complete/ -e MOVED_TO -e CREATE -e MODIFY --excl
 
     # Scan and move infected files to quarantine
     if echo "$SCAN_RESULTS" | grep -q "Infected files: 0"; then
-      echo "No threats found. Moved to '$DEST' folder."
+      echo "No threats found. Moving from '$SRC' to '$DEST' folder."
       mv "$SRC" "$DEST"
+      echo "Moved successfully"
     else
       echo "Threat detected. Moved to '$QUARANTINE_DIR'."
     fi
